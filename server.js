@@ -2,14 +2,12 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-import cors from 'cors';
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENAI_API_KEY;
 
-app.use(cors());
 app.use(bodyParser.json());
 
 // Idea2Website endpoint
@@ -27,7 +25,7 @@ app.post('/api/idea2website', async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `ولد لي موقع HTML/CSS/JS كامل للوصف التالي: ${description}`
+            content: `ولد لي موقع HTML/CSS/JS كامل للوصف التالي فقط ككود، بدون شرح إضافي:\n${description}`
           }
         ]
       })
@@ -35,14 +33,16 @@ app.post('/api/idea2website', async (req, res) => {
 
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0].message) {
-      return res.status(500).json({ error: "رد غير متوقع من OpenAI" });
+    if (data.error) {
+      console.error("❌ API Error:", data.error);
+      return res.status(500).json({ error: data.error.message });
     }
 
-    const code = data.choices[0].message.content;
+    const code = data.choices?.[0]?.message?.content || "";
     res.json({ code });
+
   } catch (err) {
-    console.error(err);
+    console.error("❌ Server Error:", err);
     res.status(500).json({ error: "خطأ في التوليد" });
   }
 });
@@ -62,7 +62,7 @@ app.post('/api/idea2sql', async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `ولد لي قاعدة بيانات ${dbType} للوصف التالي: ${description}`
+            content: `ولد لي قاعدة بيانات ${dbType} للوصف التالي على شكل أكواد SQL منظمة داخل كود بلوك فقط، بدون شرح:\n${description}`
           }
         ]
       })
@@ -70,14 +70,16 @@ app.post('/api/idea2sql', async (req, res) => {
 
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0].message) {
-      return res.status(500).json({ error: "رد غير متوقع من OpenAI" });
+    if (data.error) {
+      console.error("❌ API Error:", data.error);
+      return res.status(500).json({ error: data.error.message });
     }
 
-    const schema = data.choices[0].message.content;
+    const schema = data.choices?.[0]?.message?.content || "";
     res.json({ schema });
+
   } catch (err) {
-    console.error(err);
+    console.error("❌ Server Error:", err);
     res.status(500).json({ error: "خطأ في التوليد" });
   }
 });
