@@ -44,8 +44,11 @@ app.post("/api/idea2website", async (req, res) => {
     if (!data.choices || !data.choices[0].message) {
       return res.status(500).json({ error: "رد غير متوقع من OpenAI" });
     }
+const code = data.choices[0].message.content
+  .replace(/```html|```css|```javascript|```/g, "")
+  .replace(/```/g, "")
+  .trim();
 
-    const code = data.choices[0].message.content;
     res.json({ code });
   } catch (err) {
     console.error("Website Error:", err);
