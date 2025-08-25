@@ -27,13 +27,16 @@ app.post("/api/idea2website", async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `اعطني كود HTML و CSS و JS فقط لموقع بالوصف التالي: ${description}. لا تكتب شرح، فقط الكود.`,
+            content: `اكتب كود HTML و CSS و JS فقط لموقع بالوصف التالي: ${description}. لا تكتب أي شرح، فقط الأكواد.`,
           },
         ],
       }),
     });
 
     const data = await response.json();
+
+    // Log response for debugging
+    console.log("🔎 Website Response:", JSON.stringify(data, null, 2));
 
     if (data.error) {
       return res.status(400).json({ error: data.error.message });
@@ -65,13 +68,16 @@ app.post("/api/idea2sql", async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `اعطني اكواد SQL فقط لإنشاء جداول قاعدة بيانات نوعها ${dbType} للوصف التالي: ${description}. بدون شرح، فقط الجداول.`,
+            content: `اكتب اكواد SQL فقط لإنشاء جداول قاعدة بيانات نوعها ${dbType} للوصف التالي: ${description}. بدون شرح، فقط الأكواد.`,
           },
         ],
       }),
     });
 
     const data = await response.json();
+
+    // Log response for debugging
+    console.log("🔎 SQL Response:", JSON.stringify(data, null, 2));
 
     if (data.error) {
       return res.status(400).json({ error: data.error.message });
