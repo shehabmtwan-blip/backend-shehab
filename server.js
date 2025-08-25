@@ -27,7 +27,8 @@ app.post("/api/idea2website", async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `اكتب كود HTML و CSS و JS فقط لموقع بالوصف التالي: ${description}. لا تكتب أي شرح، فقط الأكواد.`,
+            content: `اكتب صفحة HTML كاملة تحتوي على كود HTML و CSS داخل <style> و JavaScript داخل <script>، بالاعتماد على الوصف التالي: ${description}. 
+                      لا تكتب أي شرح خارج الكود، فقط أعطني صفحة واحدة مكتملة.`,
           },
         ],
       }),
@@ -35,7 +36,7 @@ app.post("/api/idea2website", async (req, res) => {
 
     const data = await response.json();
 
-    // Log response for debugging
+    // Debugging
     console.log("🔎 Website Response:", JSON.stringify(data, null, 2));
 
     if (data.error) {
@@ -44,11 +45,8 @@ app.post("/api/idea2website", async (req, res) => {
     if (!data.choices || !data.choices[0].message) {
       return res.status(500).json({ error: "رد غير متوقع من OpenAI" });
     }
-const code = data.choices[0].message.content
-  .replace(/```html|```css|```javascript|```/g, "")
-  .replace(/```/g, "")
-  .trim();
 
+    const code = data.choices[0].message.content;
     res.json({ code });
   } catch (err) {
     console.error("Website Error:", err);
@@ -71,7 +69,8 @@ app.post("/api/idea2sql", async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `اكتب اكواد SQL فقط لإنشاء جداول قاعدة بيانات نوعها ${dbType} للوصف التالي: ${description}. بدون شرح، فقط الأكواد.`,
+            content: `اكتب اكواد SQL فقط لإنشاء جداول قاعدة بيانات نوعها ${dbType} للوصف التالي: ${description}. 
+                      بدون شرح، فقط الأكواد.`,
           },
         ],
       }),
@@ -79,7 +78,6 @@ app.post("/api/idea2sql", async (req, res) => {
 
     const data = await response.json();
 
-    // Log response for debugging
     console.log("🔎 SQL Response:", JSON.stringify(data, null, 2));
 
     if (data.error) {
