@@ -22,13 +22,19 @@ app.post('/api/idea2website', async (req, res) => {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [{ role: "user", content: `ولد لي موقع HTML/CSS/JS كامل للوصف التالي: ${description}` }]
+        messages: [
+          {
+            role: "user",
+            content: `ولد لي موقع HTML/CSS/JS كامل للوصف التالي: ${description}`
+          }
+        ]
       })
     });
     const data = await response.json();
     const code = data.choices[0].message.content;
     res.json({ code });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "خطأ في التوليد" });
   }
 });
@@ -45,15 +51,26 @@ app.post('/api/idea2sql', async (req, res) => {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [{ role: "user", content: `ولد لي قاعدة بيانات ${dbType} للوصف التالي: ${description}` }]
+        messages: [
+          {
+            role: "user",
+            content: `ولد لي قاعدة بيانات ${dbType} للوصف التالي: ${description}`
+          }
+        ]
       })
     });
     const data = await response.json();
     const schema = data.choices[0].message.content;
     res.json({ schema });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "خطأ في التوليد" });
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// مسار رئيسي للتأكد أن السيرفر شغال
+app.get("/", (req, res) => {
+  res.send("🚀 السيرفر شغال بنجاح، جرّب /api/idea2website أو /api/idea2sql");
+});
+
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
