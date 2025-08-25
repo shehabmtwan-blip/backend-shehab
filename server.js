@@ -1,8 +1,8 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
-import cors from 'cors';
+import express from "express";
+import bodyParser from "body-parser";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 const app = express();
@@ -13,28 +13,31 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Idea2Website endpoint
-app.post('/api/idea2website', async (req, res) => {
+app.post("/api/idea2website", async (req, res) => {
   const { description } = req.body;
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": Bearer ${API_KEY},
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "user",
-            content: ولد لي موقع HTML/CSS/JS كامل للوصف التالي: ${description}
-          }
-        ]
-      })
+            content: `اعطني كود HTML و CSS و JS فقط لموقع بالوصف التالي: ${description}. لا تكتب شرح، فقط الكود.`,
+          },
+        ],
+      }),
     });
 
     const data = await response.json();
 
+    if (data.error) {
+      return res.status(400).json({ error: data.error.message });
+    }
     if (!data.choices || !data.choices[0].message) {
       return res.status(500).json({ error: "رد غير متوقع من OpenAI" });
     }
@@ -42,34 +45,37 @@ app.post('/api/idea2website', async (req, res) => {
     const code = data.choices[0].message.content;
     res.json({ code });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "خطأ في التوليد" });
+    console.error("Website Error:", err);
+    res.status(500).json({ error: "خطأ في توليد الموقع" });
   }
 });
 
 // Idea2SQL endpoint
-app.post('/api/idea2sql', async (req, res) => {
+app.post("/api/idea2sql", async (req, res) => {
   const { description, dbType } = req.body;
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": Bearer ${API_KEY},
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "user",
-            content: ولد لي قاعدة بيانات ${dbType} للوصف التالي: ${description}
-          }
-        ]
-      })
+            content: `اعطني اكواد SQL فقط لإنشاء جداول قاعدة بيانات نوعها ${dbType} للوصف التالي: ${description}. بدون شرح، فقط الجداول.`,
+          },
+        ],
+      }),
     });
 
     const data = await response.json();
 
+    if (data.error) {
+      return res.status(400).json({ error: data.error.message });
+    }
     if (!data.choices || !data.choices[0].message) {
       return res.status(500).json({ error: "رد غير متوقع من OpenAI" });
     }
@@ -77,8 +83,8 @@ app.post('/api/idea2sql', async (req, res) => {
     const schema = data.choices[0].message.content;
     res.json({ schema });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "خطأ في التوليد" });
+    console.error("SQL Error:", err);
+    res.status(500).json({ error: "خطأ في توليد قاعدة البيانات" });
   }
 });
 
@@ -87,4 +93,4 @@ app.get("/", (req, res) => {
   res.send("🚀 السيرفر شغال بنجاح، جرّب /api/idea2website أو /api/idea2sql");
 });
 
-app.listen(PORT, () => console.log(✅ Server running on port ${PORT}));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
